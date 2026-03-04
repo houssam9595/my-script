@@ -134,12 +134,25 @@ return {
    end,
   },
   -- Plugin for auto save
+
   {
-    "pocco81/auto-save.nvim",
-    lazy = false,
-    config = function()
-      require("auto-save").setup {}
-    end,
+  "pocco81/auto-save.nvim",
+  lazy = false,
+  config = function()
+    require("auto-save").setup({
+      enabled = false, -- disable automatic triggers
+    })
+
+    -- Save only when pressing Esc
+    vim.keymap.set({ "i", "n", "v" }, "<Esc>", function()
+      -- if in insert, leave insert first
+      if vim.fn.mode() == "i" then
+        vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>", true, false, true), "n", true)
+      end
+      -- save (silently) if the buffer can be written
+      pcall(vim.cmd, "silent! update")
+    end, { noremap = true, silent = true })
+  end,
   },
 
   -- Plugin for fix format (you have to install the formatter programs
@@ -172,13 +185,13 @@ return {
   -- { import = "nvchad.blink.lazyspec" },
 
   -- {
-  -- 	"nvim-treesitter/nvim-treesitter",
-  -- 	opts = {
-  -- 		ensure_installed = {
-  -- 			"vim", "lua", "vimdoc",
+  --    "nvim-treesitter/nvim-treesitter",
+  --    opts = {
+  --            ensure_installed = {
+  --                    "vim", "lua", "vimdoc",
   --      "html", "css"
-  -- 		},
-  -- 	},
+  --            },
+  --    },
   -- },
 }
 EOF
