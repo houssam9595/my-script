@@ -125,7 +125,32 @@ append_line_if_missing 'export PATH="$HOME/brave-browser:$PATH"' "$HOME/.bashrc"
 if command -v gsettings >/dev/null 2>&1; then
   log "Setting GNOME keybindings"
   CUSTOM_PATH="/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/"
-  
+  # Switch to workspace 1-9
+  gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-1 "['<Primary>1']" || true
+  gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-2 "['<Primary>2']" || true
+  gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-3 "['<Primary>3']" || true
+  gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-4 "['<Primary>4']" || true
+  gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-5 "['<Primary>5']" || true
+  gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-6 "['<Primary>6']" || true
+  gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-7 "['<Primary>7']" || true
+  gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-8 "['<Primary>8']" || true
+  gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-9 "['<Primary>9']" || true
+  # Move between workspaces
+  gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-left "['<Primary>Left']" || true
+  gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-right "['<Primary>Right']" || true
+  # Move window to workspace 1-9
+  gsettings set org.gnome.desktop.wm.keybindings move-to-workspace-1 "['<Primary><Shift>1']" || true
+  gsettings set org.gnome.desktop.wm.keybindings move-to-workspace-2 "['<Primary><Shift>2']" || true
+  gsettings set org.gnome.desktop.wm.keybindings move-to-workspace-3 "['<Primary><Shift>3']" || true
+  gsettings set org.gnome.desktop.wm.keybindings move-to-workspace-4 "['<Primary><Shift>4']" || true
+  gsettings set org.gnome.desktop.wm.keybindings move-to-workspace-5 "['<Primary><Shift>5']" || true
+  gsettings set org.gnome.desktop.wm.keybindings move-to-workspace-6 "['<Primary><Shift>6']" || true
+  gsettings set org.gnome.desktop.wm.keybindings move-to-workspace-7 "['<Primary><Shift>7']" || true
+  gsettings set org.gnome.desktop.wm.keybindings move-to-workspace-8 "['<Primary><Shift>8']" || true
+  gsettings set org.gnome.desktop.wm.keybindings move-to-workspace-9 "['<Primary><Shift>9']" || true
+  # Move window one workspace left/right
+  gsettings set org.gnome.desktop.wm.keybindings move-to-workspace-left "['<Primary><Shift>Left']" || true
+  gsettings set org.gnome.desktop.wm.keybindings move-to-workspace-right "['<Primary><Shift>Right']" || true
   gsettings set org.gnome.settings-daemon.plugins.media-keys custom-keybindings "['$CUSTOM_PATH']" || true
   gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:$CUSTOM_PATH name "BraveBrowser" || true
   gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:$CUSTOM_PATH command "$APPIMAGE_FILE" || true
