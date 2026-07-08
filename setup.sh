@@ -164,25 +164,40 @@ cat > "$HOME/.config/nvim/init.lua" <<'LUA'
 vim.g.base46_cache = vim.fn.stdpath "data" .. "/base46/"
 vim.g.mapleader = " "
 
+-- bootstrap lazy and all plugins
 local lazypath = vim.fn.stdpath "data" .. "/lazy/lazy.nvim"
+
 if not vim.uv.fs_stat(lazypath) then
   local repo = "https://github.com/folke/lazy.nvim.git"
   vim.fn.system { "git", "clone", "--filter=blob:none", repo, "--branch=stable", lazypath }
 end
+
 vim.opt.rtp:prepend(lazypath)
 
 local lazy_config = require "configs.lazy"
+
+-- load plugins
 require("lazy").setup({
-  { "NvChad/NvChad", lazy = false, branch = "v2.5", import = "nvchad.plugins" },
+  {
+    "NvChad/NvChad",
+    lazy = false,
+    branch = "v2.5",
+    import = "nvchad.plugins",
+  },
+
   { import = "plugins" },
 }, lazy_config)
 
+-- load theme
 dofile(vim.g.base46_cache .. "defaults")
 dofile(vim.g.base46_cache .. "statusline")
+
 require "options"
 require "autocmds"
-vim.schedule(function() require "mappings" end)
-require "nvchad.autocmds"
+
+vim.schedule(function()
+  require "mappings"
+end)
 LUA
 
 # lazy config
@@ -190,22 +205,46 @@ cat > "$HOME/.config/nvim/lua/configs/lazy.lua" <<'LAZY'
 return {
   defaults = { lazy = true },
   install = { colorscheme = { "nvchad" } },
+
   ui = {
-    border = "rounded",
     icons = {
       ft = "",
       lazy = "󰂠 ",
       loaded = "",
-      pending = "",
+      not_loaded = "",
     },
   },
+
   performance = {
     rtp = {
       disabled_plugins = {
-        "2html_plugin", "tohtml", "getscript", "getscriptPlugin", "gzip",
-        "logipat", "netrw", "netrwPlugin", "netrwSettings", "netrwFileHandlers",
-        "matchit", "tar", "tarPlugin", "rrhelper", "spellfile_plugin",
-        "vimball", "vimballPlugin", "zip", "zipPlugin", "tutor", "rplugin",
+        "2html_plugin",
+        "tohtml",
+        "getscript",
+        "getscriptPlugin",
+        "gzip",
+        "logipat",
+        "netrw",
+        "netrwPlugin",
+        "netrwSettings",
+        "netrwFileHandlers",
+        "matchit",
+        "tar",
+        "tarPlugin",
+        "rrhelper",
+        "spellfile_plugin",
+        "vimball",
+        "vimballPlugin",
+        "zip",
+        "zipPlugin",
+        "tutor",
+        "rplugin",
+        "syntax",
+        "synmenu",
+        "optwin",
+        "compiler",
+        "bugreport",
+        "ftplugin",
       },
     },
   },
@@ -215,26 +254,25 @@ LAZY
 # options.lua (with clipboard fix)
 cat > "$HOME/.config/nvim/lua/options.lua" <<'LUA'
 require "nvchad.options"
-vim.opt.clipboard = "unnamedplus"   -- Force clipboard
+
+-- add yours here!
+
+-- local o = vim.o
+-- o.cursorlineopt ='both' -- to enable cursorline!
 LUA
 
 # mappings.lua (Fixed with your requested keys)
 cat > "$HOME/.config/nvim/lua/mappings.lua" <<'LUA'
 require "nvchad.mappings"
 
+-- add yours here
+
 local map = vim.keymap.set
 
 map("n", ";", ":", { desc = "CMD enter command mode" })
 map("i", "jk", "<ESC>")
 
--- Clipboard (works even without xclip)
-map({"n", "v"}, "<leader>y", '"+y', { desc = "Yank to system clipboard" })
-map({"n", "v"}, "<leader>Y", '"+Y', { desc = "Yank line to system clipboard" })
-map({"n", "v"}, "<leader>p", '"+p', { desc = "Paste from system clipboard" })
-
--- Comment mappings
-map("n", "<leader>cc", "gcc", { desc = "Toggle comment line", remap = true })
-map("v", "<leader>cc", "gc",  { desc = "Toggle comment", remap = true })
+-- map({ "n", "i", "v" }, "<C-s>", "<cmd> w <cr>")
 LUA
 
 # Other config files (unchanged)
@@ -243,44 +281,206 @@ require "nvchad.autocmds"
 LUA
 
 cat > "$HOME/.config/nvim/lua/chadrc.lua" <<'LUA'
+-- This file needs to have same structure as nvconfig.lua
+-- https://github.com/NvChad/ui/blob/v3.0/lua/nvconfig.lua
+-- Please read that file to know all available options :(
+
 ---@type ChadrcConfig
 local M = {}
-M.base46 = { theme = "gatekeeper" }
+
+M.base46 = {
+        theme = "gatekeeper",
+
+        -- hl_override = {
+        --      Comment = { italic = true },
+        --      ["@comment"] = { italic = true },
+        -- },
+}
+
+-- M.nvdash = { load_on_startup = true }
+-- M.ui = {
+--       tabufline = {
+--          lazyload = false
+--      }
+-- }
+
 return M
 LUA
 
 # ... (rest of your plugins remain the same)
 cat > "$HOME/.config/nvim/lua/plugins/init.lua" <<'LUA'
 return {
-  {
-    "neovim/nvim-lspconfig",
-    config = function()
-      local opts = { noremap = true, silent = true }
-      vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)
-      vim.keymap.set("n", "gD", vim.lsp.buf.declaration, opts)
-      vim.keymap.set("n", "gr", vim.lsp.buf.references, opts)
-      vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
-    end,
+
+   {
+  "neovim/nvim-lspconfig",
+  config = function()
+    -- 1. Define gopls configuration
+    vim.lsp.config("gopls", {})
+
+    -- 2. Enable the gopls server
+    vim.lsp.enable("gopls")
+
+    -- 3. Keymaps for LSP actions
+    local opts = { noremap = true, silent = true }
+
+    vim.keymap.set("n", "gd", vim.lsp.buf.definition, opts)
+    vim.keymap.set("n", "gD", vim.lsp.buf.declaration, opts)
+    vim.keymap.set("n", "gr", vim.lsp.buf.references, opts)
+    vim.keymap.set("n", "K", vim.lsp.buf.hover, opts)
+   end,
   },
+  -- Plugin for auto save
+
   {
-    "stevearc/conform.nvim",
-    lazy = false,
-    config = function()
-      require("conform").setup {
-        format_on_save = { timeout_ms = 500, lsp_fallback = true },
-        formatters_by_ft = {
-          go = { "gofmt" }, lua = { "stylua" }, python = { "black" }, c = { "clang_format" },
-        },
-      }
-      vim.keymap.set("n", "<leader>f", function() require("conform").format() end, { desc = "Format file" })
-    end,
+  "pocco81/auto-save.nvim",
+  lazy = false,
+  config = function()
+    require("auto-save").setup({
+      enabled = false, -- disable automatic triggers
+    })
+
+    -- Save only when pressing Esc
+    vim.keymap.set({ "i", "n", "v" }, "<Esc>", function()
+      -- if in insert, leave insert first
+      if vim.fn.mode() == "i" then
+        vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>", true, false, true), "n", true)
+      end
+      -- save (silently) if the buffer can be written
+      pcall(vim.cmd, "silent! update")
+    end, { noremap = true, silent = true })
+  end,
   },
+
+  -- Plugin for fix format (you have to install the formatter programs
+  -- of your laungage)
+  {
+  "stevearc/conform.nvim",
+  lazy = false,
+  config = function()
+    require("conform").setup {
+      format_on_save = {
+        timeout_ms = 500,
+        lsp_fallback = true,
+      },
+      formatters_by_ft = {
+        go = { "gofmt" },
+        lua = { "stylua" },
+        python = { "black" },
+        c = { "clang_format" },
+      },
+    }
+
+    -- manual format key (VERY important)
+    vim.keymap.set("n", "<leader>f", function()
+      require("conform").format()
+    end, { desc = "Format file" })
+  end,
+  },
+
+  {
+  'kkrampis/codex.nvim',
+  lazy = true,
+  cmd = { 'Codex', 'CodexToggle' },
+  keys = {
+    {
+      '<leader>cc',
+      function() require('codex').toggle() end,
+      desc = 'Toggle Codex popup or side-panel',
+      mode = { 'n', 't' }
+    },
+  },
+  opts = {
+    keymaps = {
+      toggle = nil,
+      quit = '<C-q>',
+    },
+    border = 'rounded',
+    width = 0.8,
+    height = 0.8,
+    model = nil,
+    autoinstall = true,
+    panel = false,
+    use_buffer = false,
+   },
+  },
+
+
+  --markdown preview
   {
     "iamcco/markdown-preview.nvim",
     build = "cd app && npm install",
     ft = { "markdown" },
-    config = function() vim.g.mkdp_auto_start = 1 end,
+    config = function()
+      vim.g.mkdp_auto_start = 1
+    end,
   },
+
+
+
+  -- Meandering programer: render markdown
+  {
+  "MeanderingProgrammer/render-markdown.nvim",
+  ft = { "markdown" },
+  config = function()
+    require("render-markdown").setup({})
+   end,
+  },
+
+
+
+  -- test new blink
+  -- { import = "nvchad.blink.lazyspec" },
+
+  -- {
+  --    "nvim-treesitter/nvim-treesitter",
+  --    opts = {
+  --            ensure_installed = {
+  --                    "vim", "lua", "vimdoc",
+  --      "html", "css"
+  --            },
+  --    },
+  -- },
+
+-- Manual completion with inline preview (ghost text)
+{
+  "hrsh7th/nvim-cmp",
+  opts = function(_, opts)
+    local cmp = require "cmp"
+    local luasnip = require "luasnip"
+
+    opts.completion = opts.completion or {}
+    opts.completion.completeopt = "menu,menuone,noinsert,noselect"
+    opts.preselect = cmp.PreselectMode.None
+
+    opts.experimental = opts.experimental or {}
+    opts.experimental.ghost_text = true
+
+    opts.mapping = vim.tbl_extend("force", opts.mapping or {}, {
+      ["<C-Space>"] = cmp.mapping.complete(),
+      ["<Tab>"] = cmp.mapping(function(fallback)
+        if cmp.visible() then
+          cmp.select_next_item()
+        elseif luasnip.expand_or_locally_jumpable() then
+          luasnip.expand_or_jump()
+        else
+          fallback()
+        end
+      end, { "i", "s" }),
+      ["<S-Tab>"] = cmp.mapping(function(fallback)
+        if cmp.visible() then
+          cmp.select_prev_item()
+        elseif luasnip.locally_jumpable(-1) then
+          luasnip.jump(-1)
+        else
+          fallback()
+        end
+      end, { "i", "s" }),
+      ["<CR>"] = cmp.mapping.confirm { select = false },
+    })
+
+    return opts
+  end,
+ },
 }
 LUA
 
