@@ -34,11 +34,11 @@ GO_ROOT="$HOME/go"
 if [ ! -x "$GO_ROOT/bin/go" ]; then
   log "Installing Go ${GO_VERSION}"
   tmpdir="$(mktemp -d)"
-  trap 'rm -rf "$tmpdir"' EXIT
   curl -fsSL "$GO_URL" -o "$tmpdir/$GO_TARBALL"
   tar -xzf "$tmpdir/$GO_TARBALL" -C "$HOME"
+  rm -rf "$tmpdir"
 else
-  log "Go already installed: $($GO_ROOT/bin/go version 2>/dev/null || true)"
+  log "Go already installed: $("$GO_ROOT/bin/go" version 2>/dev/null || true)"
 fi
 
 append_line_if_missing 'export PATH="$HOME/go/bin:$PATH"' "$HOME/.zshrc"
@@ -88,6 +88,21 @@ if command -v kitty >/dev/null 2>&1; then
   kitty @ set-colors --all "$HOME/.config/kitty/kitty.conf" 2>/dev/null || true
 fi
 
+# Desktop/app-grid integration for kitty (official binary-install step;
+# without this kitty has no launcher icon, only PATH/keybinding access)
+if [ -f "$HOME/.local/kitty.app/share/applications/kitty.desktop" ]; then
+  mkdir -p "$HOME/.local/bin" "$HOME/.local/share/applications"
+  ln -sf "$HOME/.local/kitty.app/bin/kitty" "$HOME/.local/bin/kitty"
+  ln -sf "$HOME/.local/kitty.app/bin/kitten" "$HOME/.local/bin/kitten"
+  cp -f "$HOME/.local/kitty.app/share/applications/kitty.desktop" "$HOME/.local/share/applications/"
+  if [ -f "$HOME/.local/kitty.app/share/applications/kitty-open.desktop" ]; then
+    cp -f "$HOME/.local/kitty.app/share/applications/kitty-open.desktop" "$HOME/.local/share/applications/"
+  fi
+  sed -i "s|Icon=kitty|Icon=$HOME/.local/kitty.app/share/icons/hicolor/256x256/apps/kitty.png|g" "$HOME/.local/share/applications/"kitty*.desktop
+  sed -i "s|Exec=kitty|Exec=$HOME/.local/kitty.app/bin/kitty|g" "$HOME/.local/share/applications/"kitty*.desktop
+  update-desktop-database "$HOME/.local/share/applications" 2>/dev/null || true
+fi
+
 # -----------------------------
 # Brave AppImage
 # -----------------------------
@@ -110,6 +125,7 @@ append_line_if_missing 'export PATH="$HOME/brave-browser:$PATH"' "$HOME/.bashrc"
 if command -v gsettings >/dev/null 2>&1; then
   log "Setting GNOME keybindings"
   CUSTOM_PATH="/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/"
+  
   gsettings set org.gnome.settings-daemon.plugins.media-keys custom-keybindings "['$CUSTOM_PATH']" || true
   gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:$CUSTOM_PATH name "BraveBrowser" || true
   gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:$CUSTOM_PATH command "$APPIMAGE_FILE" || true
@@ -133,11 +149,11 @@ NVIM_URL="https://github.com/neovim/neovim/releases/download/${NVIM_VERSION}/${N
 if ! command -v nvim >/dev/null 2>&1; then
   log "Installing Neovim ${NVIM_VERSION}"
   tmpdir="$(mktemp -d)"
-  trap 'rm -rf "$tmpdir"' EXIT
   curl -fsSL "$NVIM_URL" -o "$tmpdir/$NVIM_TARBALL"
   tar -xzf "$tmpdir/$NVIM_TARBALL" -C "$tmpdir"
   rm -rf "$HOME/.local/opt/nvim-linux-x86_64"
   mv "$tmpdir/nvim-linux-x86_64" "$HOME/.local/opt/"
+  rm -rf "$tmpdir"
   ln -sf "$HOME/.local/opt/nvim-linux-x86_64/bin/nvim" "$HOME/.local/bin/nvim"
   export PATH="$HOME/.local/bin:$PATH"
 else
@@ -208,10 +224,10 @@ return {
 
   ui = {
     icons = {
-      ft = "",
+      ft = "",
       lazy = "󰂠 ",
-      loaded = "",
-      not_loaded = "",
+      loaded = "",
+      not_loaded = "",
     },
   },
 
