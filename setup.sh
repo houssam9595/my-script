@@ -239,6 +239,8 @@ require "autocmds"
 vim.schedule(function()
   require "mappings"
 end)
+vim.g.clipboard = "osc52"
+vim.opt.clipboard = "unnamedplus"
 LUA
 
 # lazy config
