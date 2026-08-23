@@ -241,6 +241,7 @@ vim.schedule(function()
 end)
 vim.g.clipboard = "osc52"
 vim.opt.clipboard = "unnamedplus"
+vim.opt.relativenumber = true
 LUA
 
 # lazy config
