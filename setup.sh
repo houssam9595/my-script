@@ -583,6 +583,11 @@ fi
 log "Syncing Neovim plugins..."
 nvim --headless "+Lazy! sync" +qa 2>/dev/null || true
 
+#install ripgrep
+curl -LO 'https://github.com/BurntSushi/ripgrep/releases/download/13.0.0/ripgrep-13.0.0-x86_64-unknown-linux-musl.tar.gz'
+tar xf ripgrep-13.0.0-x86_64-unknown-linux-musl.tar.gz
+./ripgrep-13.0.0-x86_64-unknown-linux-musl/rg --version
+
 log "=== Setup Complete ==="
 log "Run these commands now:"
 log " source ~/.zshrc"
