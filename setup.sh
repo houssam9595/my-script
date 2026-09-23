@@ -23,9 +23,6 @@ done
 
 mkdir -p "$HOME/.local/bin" "$HOME/.local/opt" "$HOME/.config" "$HOME/.cache"
 
-# -----------------------------
-# Go setup
-# -----------------------------
 GO_VERSION="1.23.3"
 GO_TARBALL="go${GO_VERSION}.linux-amd64.tar.gz"
 GO_URL="https://go.dev/dl/${GO_TARBALL}"
@@ -45,7 +42,6 @@ append_line_if_missing 'export PATH="$HOME/go/bin:$PATH"' "$HOME/.zshrc"
 append_line_if_missing 'export PATH="$HOME/go/bin:$PATH"' "$HOME/.bashrc"
 export PATH="$HOME/go/bin:$PATH"
 
-# Optional piscine workspace
 if [ ! -d "$HOME/piscine" ]; then
   mkdir -p "$HOME/piscine"
   (
@@ -55,16 +51,11 @@ if [ ! -d "$HOME/piscine" ]; then
   )
 fi
 
-# -----------------------------
-# Git identity
-# -----------------------------
 git config --global user.email "zmarrouhoussam@email.com"
 git config --global user.name "hzmarrou"
 git config --global credential.helper store
 
-# -----------------------------
-# Kitty
-# -----------------------------
+
 if [ ! -x "$HOME/.local/kitty.app/bin/kitty" ]; then
   log "Installing Kitty"
   curl -fsSL https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin
@@ -88,8 +79,6 @@ if command -v kitty >/dev/null 2>&1; then
   kitty @ set-colors --all "$HOME/.config/kitty/kitty.conf" 2>/dev/null || true
 fi
 
-# Desktop/app-grid integration for kitty (official binary-install step;
-# without this kitty has no launcher icon, only PATH/keybinding access)
 if [ -f "$HOME/.local/kitty.app/share/applications/kitty.desktop" ]; then
   mkdir -p "$HOME/.local/bin" "$HOME/.local/share/applications"
   ln -sf "$HOME/.local/kitty.app/bin/kitty" "$HOME/.local/bin/kitty"
@@ -103,9 +92,7 @@ if [ -f "$HOME/.local/kitty.app/share/applications/kitty.desktop" ]; then
   update-desktop-database "$HOME/.local/share/applications" 2>/dev/null || true
 fi
 
-# -----------------------------
-# Brave AppImage
-# -----------------------------
+
 BRAVE_DIR="$HOME/brave-browser"
 APPIMAGE_URL="https://github.com/srevinsaju/Brave-AppImage/releases/download/v1.88.7/Brave-nightly-v1.88.7-x86_64.AppImage"
 APPIMAGE_FILE="$BRAVE_DIR/brave-nightly.AppImage"
@@ -119,13 +106,11 @@ fi
 append_line_if_missing 'export PATH="$HOME/brave-browser:$PATH"' "$HOME/.zshrc"
 append_line_if_missing 'export PATH="$HOME/brave-browser:$PATH"' "$HOME/.bashrc"
 
-# -----------------------------
-# GNOME keybindings
-# -----------------------------
+
 if command -v gsettings >/dev/null 2>&1; then
   log "Setting GNOME keybindings"
   CUSTOM_PATH="/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/"
-  # Switch to workspace 1-9
+
   gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-1 "['<Primary>1']" || true
   gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-2 "['<Primary>2']" || true
   gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-3 "['<Primary>3']" || true
@@ -135,10 +120,10 @@ if command -v gsettings >/dev/null 2>&1; then
   gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-7 "['<Primary>7']" || true
   gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-8 "['<Primary>8']" || true
   gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-9 "['<Primary>9']" || true
-  # Move between workspaces
+
   gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-left "['<Primary>Left']" || true
   gsettings set org.gnome.desktop.wm.keybindings switch-to-workspace-right "['<Primary>Right']" || true
-  # Move window to workspace 1-9
+
   gsettings set org.gnome.desktop.wm.keybindings move-to-workspace-1 "['<Primary><Shift>1']" || true
   gsettings set org.gnome.desktop.wm.keybindings move-to-workspace-2 "['<Primary><Shift>2']" || true
   gsettings set org.gnome.desktop.wm.keybindings move-to-workspace-3 "['<Primary><Shift>3']" || true
@@ -148,7 +133,7 @@ if command -v gsettings >/dev/null 2>&1; then
   gsettings set org.gnome.desktop.wm.keybindings move-to-workspace-7 "['<Primary><Shift>7']" || true
   gsettings set org.gnome.desktop.wm.keybindings move-to-workspace-8 "['<Primary><Shift>8']" || true
   gsettings set org.gnome.desktop.wm.keybindings move-to-workspace-9 "['<Primary><Shift>9']" || true
-  # Move window one workspace left/right
+
   gsettings set org.gnome.desktop.wm.keybindings move-to-workspace-left "['<Primary><Shift>Left']" || true
   gsettings set org.gnome.desktop.wm.keybindings move-to-workspace-right "['<Primary><Shift>Right']" || true
   gsettings set org.gnome.settings-daemon.plugins.media-keys custom-keybindings "['$CUSTOM_PATH']" || true
@@ -164,9 +149,7 @@ if command -v gsettings >/dev/null 2>&1; then
   gsettings set org.gnome.desktop.wm.keybindings switch-applications "['<Alt>Tab']" || true
 fi
 
-# -----------------------------
-# Neovim
-# -----------------------------
+
 NVIM_VERSION="v0.12.2"
 NVIM_TARBALL="nvim-linux-x86_64.tar.gz"
 NVIM_URL="https://github.com/neovim/neovim/releases/download/${NVIM_VERSION}/${NVIM_TARBALL}"
@@ -188,9 +171,7 @@ fi
 append_line_if_missing 'export PATH="$HOME/.local/bin:$PATH"' "$HOME/.zshrc"
 append_line_if_missing 'export PATH="$HOME/.local/bin:$PATH"' "$HOME/.bashrc"
 
-# -----------------------------
-# NvChad Setup (Fixed)
-# -----------------------------
+
 stamp="$(date +%Y%m%d-%H%M%S)"
 if [ -d "$HOME/.config/nvim" ] && [ "$(find "$HOME/.config/nvim" -mindepth 1 -maxdepth 1 2>/dev/null | wc -l)" -gt 0 ]; then
   backup="$HOME/.config/nvim.backup-${stamp}"
@@ -200,7 +181,6 @@ fi
 
 mkdir -p "$HOME/.config/nvim/lua/configs" "$HOME/.config/nvim/lua/plugins"
 
-# init.lua
 cat > "$HOME/.config/nvim/init.lua" <<'LUA'
 vim.g.base46_cache = vim.fn.stdpath "data" .. "/base46/"
 vim.g.mapleader = " "
@@ -295,7 +275,7 @@ return {
 }
 LAZY
 
-# options.lua (with clipboard fix)
+
 cat > "$HOME/.config/nvim/lua/options.lua" <<'LUA'
 require "nvchad.options"
 
@@ -305,7 +285,7 @@ require "nvchad.options"
 -- o.cursorlineopt ='both' -- to enable cursorline!
 LUA
 
-# mappings.lua (Fixed with your requested keys)
+
 cat > "$HOME/.config/nvim/lua/mappings.lua" <<'LUA'
 require "nvchad.mappings"
 
@@ -319,7 +299,6 @@ map("i", "jk", "<ESC>")
 -- map({ "n", "i", "v" }, "<C-s>", "<cmd> w <cr>")
 LUA
 
-# Other config files (unchanged)
 cat > "$HOME/.config/nvim/lua/autocmds.lua" <<'LUA'
 require "nvchad.autocmds"
 LUA
@@ -351,7 +330,7 @@ M.base46 = {
 return M
 LUA
 
-# ... (rest of your plugins remain the same)
+
 cat > "$HOME/.config/nvim/lua/plugins/init.lua" <<'LUA'
 return {
 
@@ -570,7 +549,7 @@ return {
 }
 LUA
 
-# Optional: npm tools
+
 if command -v npm >/dev/null 2>&1; then
   mkdir -p "$HOME/.local"
   npm config set prefix "$HOME/.local" >/dev/null 2>&1 || true
@@ -583,7 +562,6 @@ fi
 log "Syncing Neovim plugins..."
 nvim --headless "+Lazy! sync" +qa 2>/dev/null || true
 
-#install ripgrep
 curl -LO 'https://github.com/BurntSushi/ripgrep/releases/download/13.0.0/ripgrep-13.0.0-x86_64-unknown-linux-musl.tar.gz'
 tar xf ripgrep-13.0.0-x86_64-unknown-linux-musl.tar.gz
 ./ripgrep-13.0.0-x86_64-unknown-linux-musl/rg --version
