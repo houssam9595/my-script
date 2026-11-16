@@ -93,19 +93,26 @@ if [ -f "$HOME/.local/kitty.app/share/applications/kitty.desktop" ]; then
 fi
 
 
-BRAVE_DIR="$HOME/brave-browser"
-APPIMAGE_URL="https://github.com/srevinsaju/Brave-AppImage/releases/download/v1.88.7/Brave-nightly-v1.88.7-x86_64.AppImage"
-APPIMAGE_FILE="$BRAVE_DIR/brave-nightly.AppImage"
-mkdir -p "$BRAVE_DIR"
-if [ ! -f "$APPIMAGE_FILE" ]; then
-  log "Downloading Brave AppImage"
-  curl -fsSL -o "$APPIMAGE_FILE" "$APPIMAGE_URL"
-  chmod +x "$APPIMAGE_FILE"
+if ! command -v brave-browser >/dev/null 2>&1; then
+  log "Installing Brave Browser..."
+
+  sudo apt install -y curl
+
+  sudo curl -fsSLo \
+    /usr/share/keyrings/brave-browser-archive-keyring.gpg \
+    https://brave-browser-apt-release.s3.brave.com/brave-browser-archive-keyring.gpg
+
+  sudo curl -fsSLo \
+    /etc/apt/sources.list.d/brave-browser-release.sources \
+    https://brave-browser-apt-release.s3.brave.com/brave-browser.sources
+
+  sudo apt update
+  sudo apt install -y brave-browser
+
+  log "Brave Browser installed successfully!"
+else
+  log "Brave already installed: $(brave-browser --version)"
 fi
-
-append_line_if_missing 'export PATH="$HOME/brave-browser:$PATH"' "$HOME/.zshrc"
-append_line_if_missing 'export PATH="$HOME/brave-browser:$PATH"' "$HOME/.bashrc"
-
 
 if command -v gsettings >/dev/null 2>&1; then
   log "Setting GNOME keybindings"
@@ -138,7 +145,7 @@ if command -v gsettings >/dev/null 2>&1; then
   gsettings set org.gnome.desktop.wm.keybindings move-to-workspace-right "['<Primary><Shift>Right']" || true
   gsettings set org.gnome.settings-daemon.plugins.media-keys custom-keybindings "['$CUSTOM_PATH']" || true
   gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:$CUSTOM_PATH name "BraveBrowser" || true
-  gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:$CUSTOM_PATH command "$APPIMAGE_FILE" || true
+  gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:$CUSTOM_PATH command "brave-browser" || true
   gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:$CUSTOM_PATH binding "<Control>b" || true
   gsettings set org.gnome.desktop.default-applications.terminal exec "$HOME/.local/kitty.app/bin/kitty" || true
   gsettings set org.gnome.desktop.default-applications.terminal exec-arg "" || true
